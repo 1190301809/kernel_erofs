@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.cu": "cuda-cpp",
+        "module.h": "c",
+        "kernel.h": "c",
+        "sysinfo.h": "c",
+        "const.h": "c",
+        "stdint.h": "c",
+        "stdbool.h": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "cstdint": "c",
+        "xattr.h": "c"
+    }
+}
