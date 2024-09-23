@@ -1,6 +1,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/psi.h>
+#include "bcj.h"
 #define Test86MSByte(b) ((b) == 0 || (b) == 0xFF)
 
 typedef struct {
@@ -220,30 +221,40 @@ static size_t arm64_code(uint32_t now_pos, bool is_encoder,
 	return i;
 }
 
-int page_bcj_decode(struct page* page)
+int bcj_code(uint8_t* buf,uint32_t startpos,size_t size,int bcj_type,bool is_encode)
+{
+	size_t processed_size = 0;
+	lzma_simple_x86 simple;
+	switch (bcj_type) {
+	case 1:
+		simple.prev_mask = 0;
+		simple.prev_pos = (uint32_t)(-5);
+		processed_size = x86_code(&simple, startpos, is_encode, buf, size);
+		break;
+	case 2:
+		processed_size = arm_code(startpos, is_encode, buf, size);
+		break;
+	case 3:
+		processed_size = arm64_code(startpos, is_encode, buf, size);
+		break;
+	default:
+		erofs_err("bad bcjcode flag");
+		break;
+	}
+	return processed_size;
+}
+
+int page_bcj_decode(struct page* page,size_t startpos,int bcjflag)
 {
 	uint8_t* buf = (uint8_t *)kmap_local_page(page);
 	if(!buf){
 		printk(KERN_DEBUG "read page failed\n");
 	}
 	else{
-		//size_t processed_size;
-		lzma_simple_x86 simple;
-		switch (sbi->bcj_flag){
-		case 1:
-    		simple.prev_mask = 0;
-    		simple.prev_pos = (uint32_t)(0);
-			x86_code(&simple, 0, false, buf, PAGE_SIZE);
-			break;
-		case 2:
-			arm_code(0, false, buf, PAGE_SIZE);
-			break;
-		case 3:
-			arm64_code(0, false, buf, PAGE_SIZE);
-			break;
-		default:
-			break;
-		}
+		size_t processed_size;
+		processed_size = bcj_code(buf,startpos,PAGE_SIZE,bcjflag,false);
 		kunmap_local(buf);
+		return processed_size;
 	}
+	return -1;
 }

@@ -92,6 +92,9 @@ struct z_erofs_pcluster {
 
 	/* A: compressed bvecs (can be cached or inplaced pages) */
 	struct z_erofs_bvec compressed_bvecs[];
+
+	/* L: bcj test data*/
+	uint32_t  filepos;
 };
 
 /* the end of a chain of pclusters */
@@ -1289,30 +1292,8 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 			if (!page ||
 			    erofs_folio_is_managed(sbi, page_folio(page)))
 				continue;
-			// uint8_t* buf = (uint8_t *)kmap_local_page(page);
-			// if(!buf){
-			// 	printk(KERN_DEBUG "read page failed\n");
-			// }
-			// else{
-			// 	//size_t processed_size;
-			// 	lzma_simple_x86 simple;
-			// 	switch (sbi->bcj_flag){
-			// 	case 1:
-    		// 		simple.prev_mask = 0;
-    		// 		simple.prev_pos = (uint32_t)(0);
-			// 		x86_code(&simple, 0, false, buf, PAGE_SIZE);
-			// 		break;
-			// 	case 2:
-			// 		arm_code(0, false, buf, PAGE_SIZE);
-			// 		break;
-			// 	case 3:
-			// 		arm64_code(0, false, buf, PAGE_SIZE);
-			// 		break;
-			// 	default:
-			// 		break;
-			// 	}
-			// 	kunmap_local(buf);
-			// }
+			printk("bcjflag=%d,");
+			page_bcj_decode(page,pcl->pageofs_out,sbi->bcj_flag);
 			(void)z_erofs_put_shortlivedpage(be->pagepool, page);
 			WRITE_ONCE(pcl->compressed_bvecs[i].page, NULL);
 		}
