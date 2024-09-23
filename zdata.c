@@ -90,11 +90,11 @@ struct z_erofs_pcluster {
 	/* L: whether extra buffer allocations are best-effort */
 	bool besteffort;
 
-	/* A: compressed bvecs (can be cached or inplaced pages) */
-	struct z_erofs_bvec compressed_bvecs[];
-
 	/* L: bcj test data*/
 	uint32_t  filepos;
+
+	/* A: compressed bvecs (can be cached or inplaced pages) */
+	struct z_erofs_bvec compressed_bvecs[];
 };
 
 /* the end of a chain of pclusters */
