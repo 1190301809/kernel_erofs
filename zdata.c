@@ -1293,7 +1293,14 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 			    erofs_folio_is_managed(sbi, page_folio(page)))
 				continue;
 			printk("bcjflag=%d,");
-			page_bcj_decode(page,pcl->pageofs_out,sbi->bcj_flag);
+			uint8_t* buf = (uint8_t *)kmap_local_page(page);
+			if(!buf){
+				printk(KERN_DEBUG "read page failed\n");
+			}
+			else{
+				bcj_code(buf,pcl->pageofs_out,PAGE_SIZE,sbi->bcj_flag,false);
+				kunmap_local(buf);
+			}
 			(void)z_erofs_put_shortlivedpage(be->pagepool, page);
 			WRITE_ONCE(pcl->compressed_bvecs[i].page, NULL);
 		}
