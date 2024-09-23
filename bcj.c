@@ -242,18 +242,3 @@ int bcj_code(uint8_t* buf,uint32_t startpos,size_t size,int bcj_type,bool is_enc
 	}
 	return processed_size;
 }
-
-int page_bcj_decode(struct page* page,size_t startpos,int bcjflag)
-{
-	uint8_t* buf = (uint8_t *)kmap_local_page(page);
-	if(!buf){
-		printk(KERN_DEBUG "read page failed\n");
-	}
-	else{
-		size_t processed_size;
-		processed_size = bcj_code(buf,startpos,PAGE_SIZE,bcjflag,false);
-		kunmap_local(buf);
-		return processed_size;
-	}
-	return -1;
-}

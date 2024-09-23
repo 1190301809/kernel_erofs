@@ -1292,7 +1292,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 			if (!page ||
 			    erofs_folio_is_managed(sbi, page_folio(page)))
 				continue;
-			printk("bcjflag=%d,");
+			printk("bcjflag=%d,pageof_out=%d",sbi->bcj_flag,pcl->pageofs_out);
 			uint8_t* buf = (uint8_t *)kmap_local_page(page);
 			if(!buf){
 				printk(KERN_DEBUG "read page failed\n");
