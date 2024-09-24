@@ -1310,7 +1310,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 		DBG_BUGON(z_erofs_page_is_invalidated(page));
 
 		//bcj test
-		if(pcl->algorithmformat == '0'){
+		if(pcl->algorithmformat == 4){
 			printk("nocompress pcl");
 		}else{
 			uint8_t* buf = (uint8_t *)kmap_local_page(page);
