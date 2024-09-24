@@ -1318,16 +1318,17 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 				printk(KERN_DEBUG "read page failed\n");
 			}
 			else{
+				uint32_t startpos;
 				if(i == 0){
-					uint32_t startpos = pcl->filepos;
+					startpos = pcl->filepos;
 					bcj_code(buf + pcl->pageofs_out,startpos,PAGE_SIZE - pcl->pageofs_out,sbi->bcj_flag,false);
 				}else{
-					uint32_t startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
+					startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
 					bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
 				}
 				kunmap_local(buf);
+				printk("page=%d,algorithm=%d,m_la=%d,startpos=%d,pcl->pageof_out=%d,pcl->pageof_in=%d",i+1,pcl->algorithmformat,pcl->filepos,startpos,pcl->pageofs_out,pcl->pageofs_in);
 			}
-			printk("page=%d,algorithm=%d,m_la=%d,startpos=%d,pcl->pageof_out=%d,pcl->pageof_in=%d",i+1,pcl->algorithmformat,pcl->filepos,startpos,pcl->pageofs_out,pcl->pageofs_in);
 		}
 
 		/* recycle all individual short-lived pages */
