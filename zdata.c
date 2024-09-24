@@ -794,6 +794,7 @@ static int z_erofs_register_pcluster(struct z_erofs_decompress_frontend *fe)
 	/* new pclusters should be claimed as type 1, primary and followed */
 	pcl->next = fe->owned_head;
 	pcl->pageofs_out = map->m_la & ~PAGE_MASK;
+	pcl->filepos = map->m_la;
 	fe->mode = Z_EROFS_PCLUSTER_FOLLOWED;
 
 	/*
@@ -1292,13 +1293,13 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 			if (!page ||
 			    erofs_folio_is_managed(sbi, page_folio(page)))
 				continue;
-			printk("bcjflag=%d,pageof_out=%d",sbi->bcj_flag,pcl->pageofs_out);
+			printk("bcjflag=%d,pageof_out=%d",sbi->bcj_flag,pcl->filepos);
 			uint8_t* buf = (uint8_t *)kmap_local_page(page);
 			if(!buf){
 				printk(KERN_DEBUG "read page failed\n");
 			}
 			else{
-				bcj_code(buf,pcl->pageofs_out,PAGE_SIZE,sbi->bcj_flag,false);
+				bcj_code(buf,pcl->filepos,PAGE_SIZE,sbi->bcj_flag,false);
 				kunmap_local(buf);
 			}
 			(void)z_erofs_put_shortlivedpage(be->pagepool, page);
