@@ -1323,7 +1323,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 					bcj_code(buf + pcl->pageofs_out,startpos,PAGE_SIZE - pcl->pageofs_out,sbi->bcj_flag,false);
 				}else if(i == be->nr_pages - 1){
 					startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
-					bcj_code(buf,startpos,PAGE_SIZE - pcl->length,sbi->bcj_flag,false);
+					bcj_code(buf,startpos,(pcl->pageofs_out + pcl->length)&PAGE_SIZE,sbi->bcj_flag,false);
 				}else{
 					startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
 					bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
