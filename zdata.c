@@ -1319,18 +1319,21 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 					printk(KERN_DEBUG "read page failed\n");
 				}else{
 					uint32_t startpos;
+					int x;
 					if(i == 0){
 						startpos = pcl->filepos;
-						bcj_code(buf + pcl->pageofs_out,startpos,PAGE_SIZE - pcl->pageofs_out,sbi->bcj_flag,false);
+						x = bcj_code(buf + pcl->pageofs_out,startpos,PAGE_SIZE - pcl->pageofs_out,sbi->bcj_flag,false);
+						printk("%02x %02x %02x %02x %02x %02x %02x %02x",buf + pcl->pageofs_out,buf + pcl->pageofs_out + 1,
+						buf + pcl->pageofs_out+2,buf + pcl->pageofs_out+3,buf + pcl->pageofs_out+4,buf + pcl->pageofs_out+5,buf + pcl->pageofs_out+6,buf + pcl->pageofs_out+7);
 					}else if(i == be->nr_pages - 1){
 						startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
-						bcj_code(buf,startpos,(pcl->pageofs_out + pcl->length)%PAGE_SIZE,sbi->bcj_flag,false);
+						x = bcj_code(buf,startpos,(pcl->pageofs_out + pcl->length)%PAGE_SIZE,sbi->bcj_flag,false);
 					}else{
 						startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
-						bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
+						x = bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
 					}
 					kunmap_local(buf);
-					printk("bcj page=%d,m_la=%d,startpos=%d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,startpos,pcl->pageofs_out,pcl->length);
+					printk("bcj page=%d,m_la=%d,startpos=%d,pcl->pageof_out=%d,pcl->length=%d,processed=%d",i+1,pcl->filepos,startpos,pcl->pageofs_out,pcl->length,x);
 				}
 			}
 		}
