@@ -1311,8 +1311,11 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 
 		//bcj test
 		if(sbi->bcj_flag){
-			if(pcl->algorithmformat == 4){
-				//printk("no compress page=%d,m_la = %d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,pcl->pageofs_out,pcl->length);
+			//if(pcl->algorithmformat == 4){
+			if(pcl->pclustersize == pcl->length){
+				if(startpos <= 464816 && startpos + PAGE_SIZE >= 464816){
+					printk("no compress page=%d,m_la = %d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,pcl->pageofs_out,pcl->length);
+				}
 			}else{
 				uint8_t* buf = (uint8_t *)kmap_local_page(page);
 				if(!buf){
