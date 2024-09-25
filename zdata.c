@@ -1311,12 +1311,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 
 		//bcj test
 		if(sbi->bcj_flag){
-			//if(pcl->algorithmformat == 4){
-			if(pcl->pclustersize == pcl->length){
-				if(pcl->filepos <= 466944 && pcl->filepos >= 466944){
-					printk("no compress page=%d,m_la = %d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,pcl->pageofs_out,pcl->length);
-				}
-			}else{
+			if(pcl->pclustersize != pcl->length){
 				uint8_t* buf = (uint8_t *)kmap_local_page(page);
 				if(!buf){
 					printk(KERN_DEBUG "read page failed\n");
@@ -1333,9 +1328,8 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 						startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
 						x = bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
 					}
-					if(startpos <= 466944 && startpos + PAGE_SIZE >= 466944){
-						printk("page=%d,processed=%d,filepos=%d,startpos=%d,pageoff=%d,length=%d",i+1,x,pcl->filepos,startpos,pcl->pageofs_out,pcl->length);
-						printk("%d %d %d %d",*(buf),*(buf+1),*(buf+2),*(buf+3));
+					if(startpos == 0x720000){
+						printk("%02x %02x %02x %02x %02x %02x %02x %02x",*(buf),*(buf+1),*(buf+2),,*(buf+3),*(buf+4),*(buf+5),*(buf+6),*(buf+7));
 					}
 					kunmap_local(buf);
 				}
