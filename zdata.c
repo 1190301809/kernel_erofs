@@ -1310,26 +1310,28 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 		DBG_BUGON(z_erofs_page_is_invalidated(page));
 
 		//bcj test
-		if(pcl->algorithmformat == 4){
-			printk("no compress page=%d,m_la = %d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,pcl->pageofs_out,pcl->length);
-		}else{
-			uint8_t* buf = (uint8_t *)kmap_local_page(page);
-			if(!buf){
-				printk(KERN_DEBUG "read page failed\n");
+		if(sbi.bcj_flag){
+			if(pcl->algorithmformat == 4){
+				printk("no compress page=%d,m_la = %d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,pcl->pageofs_out,pcl->length);
 			}else{
-				uint32_t startpos;
-				if(i == 0){
-					startpos = pcl->filepos;
-					bcj_code(buf + pcl->pageofs_out,startpos,PAGE_SIZE - pcl->pageofs_out,sbi->bcj_flag,false);
-				}else if(i == be->nr_pages - 1){
-					startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
-					bcj_code(buf,startpos,(pcl->pageofs_out + pcl->length)&PAGE_SIZE,sbi->bcj_flag,false);
+				uint8_t* buf = (uint8_t *)kmap_local_page(page);
+				if(!buf){
+					printk(KERN_DEBUG "read page failed\n");
 				}else{
-					startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
-					bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
+					uint32_t startpos;
+					if(i == 0){
+						startpos = pcl->filepos;
+						bcj_code(buf + pcl->pageofs_out,startpos,PAGE_SIZE - pcl->pageofs_out,sbi->bcj_flag,false);
+					}else if(i == be->nr_pages - 1){
+						startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
+						bcj_code(buf,startpos,(pcl->pageofs_out + pcl->length)%PAGE_SIZE,sbi->bcj_flag,false);
+					}else{
+						startpos = pcl->filepos + i*PAGE_SIZE - pcl->pageofs_out;
+						bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
+					}
+					kunmap_local(buf);
+					printk("bcj page=%d,m_la=%d,startpos=%d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,startpos,pcl->pageofs_out,pcl->length);
 				}
-				kunmap_local(buf);
-				printk("bcj page=%d,m_la=%d,startpos=%d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,startpos,pcl->pageofs_out,pcl->length);
 			}
 		}
 
