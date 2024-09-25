@@ -1313,7 +1313,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 		if(sbi->bcj_flag){
 			//if(pcl->algorithmformat == 4){
 			if(pcl->pclustersize == pcl->length){
-				if(startpos <= 464816 && startpos + PAGE_SIZE >= 464816){
+				if(pcl->filepos <= 464816 && pcl->filepos >= 464816){
 					printk("no compress page=%d,m_la = %d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,pcl->pageofs_out,pcl->length);
 				}
 			}else{
