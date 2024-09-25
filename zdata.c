@@ -1310,7 +1310,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 		DBG_BUGON(z_erofs_page_is_invalidated(page));
 
 		//bcj test
-		if(sbi.bcj_flag){
+		if(sbi->bcj_flag){
 			if(pcl->algorithmformat == 4){
 				printk("no compress page=%d,m_la = %d,pcl->pageof_out=%d,pcl->length=%d",i+1,pcl->filepos,pcl->pageofs_out,pcl->length);
 			}else{
