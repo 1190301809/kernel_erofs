@@ -1,13 +1,20 @@
+/* SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0 */
+/*
+ * Copyright (C) 2024 HUAWEI, Inc.
+ *             http://www.huawei.com/
+ * Created by MercyHeart <2384268568@qq.com>
+ * Created by Feynman G <gxnorz@gmail.com>
+ */
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/psi.h>
 #include "bcj.h"
 #define Test86MSByte(b) ((b) == 0 || (b) == 0xFF)
 
-typedef struct {
+struct lzma_simple_x86{
 	uint32_t prev_mask;
 	uint32_t prev_pos;
-} lzma_simple_x86;
+};
 
 static size_t
 x86_code(void *simple_ptr, uint32_t now_pos, bool is_encoder,
@@ -19,7 +26,7 @@ x86_code(void *simple_ptr, uint32_t now_pos, bool is_encoder,
 	static const uint32_t MASK_TO_BIT_NUMBER[8]
 			= { 0, 1, 2, 2, 3, 3, 3, 3 };
 
-	lzma_simple_x86 *simple = simple_ptr;
+	struct lzma_simple_x86 *simple = simple_ptr;
 	uint32_t prev_mask = simple->prev_mask;
 	uint32_t prev_pos = simple->prev_pos;
 
@@ -34,6 +41,7 @@ x86_code(void *simple_ptr, uint32_t now_pos, bool is_encoder,
 
 	while (buffer_pos <= limit) {
 		uint8_t b = buffer[buffer_pos];
+
 		if (b != 0xE8 && b != 0xE9) {
 			++buffer_pos;
 			continue;
@@ -64,6 +72,7 @@ x86_code(void *simple_ptr, uint32_t now_pos, bool is_encoder,
 				| (buffer[buffer_pos + 1]);
 
 			uint32_t dest;
+
 			while (true) {
 				if (is_encoder)
 					dest = src + (now_pos + (uint32_t)(
@@ -112,6 +121,7 @@ static size_t arm_code(uint32_t now_pos, bool is_encoder,
 		uint8_t *buffer, size_t size)
 {
 	size_t i;
+
 	for (i = 0; i + 4 <= size; i += 4) {
 		if (buffer[i + 3] == 0xEB) {
 			uint32_t src = ((uint32_t)(buffer[i + 2]) << 16)
@@ -120,6 +130,7 @@ static size_t arm_code(uint32_t now_pos, bool is_encoder,
 			src <<= 2;
 
 			uint32_t dest;
+
 			if (is_encoder)
 				dest = now_pos + (uint32_t)(i) + 8 + src;
 			else
@@ -145,32 +156,31 @@ static size_t arm_code(uint32_t now_pos, bool is_encoder,
 // 如果是大端系统，定义字节交换宏
 #define UINT32_C(c) c##U
 #ifndef bswap32
-#define bswap32(n) (uint32_t)( \
-      (((n) & UINT32_C(0x000000FF)) << 24) | \
-      (((n) & UINT32_C(0x0000FF00)) << 8)  | \
-      (((n) & UINT32_C(0x00FF0000)) >> 8)  | \
-      (((n) & UINT32_C(0xFF000000)) >> 24) \
-    )
+#define bswap32(n) ((uint32_t)( \
+(((n) & UINT32_C(0x000000FF)) << 24) | \
+(((n) & UINT32_C(0x0000FF00)) << 8)  | \
+(((n) & UINT32_C(0x00FF0000)) >> 8)  | \
+(((n) & UINT32_C(0xFF000000)) >> 24)))
 #endif
 
 // 读取32位小端整数
-static inline uint32_t read32le(const uint8_t *buf) {
+static inline uint32_t read32le(const uint8_t *buf) 
+{
     uint32_t num;
+
     memcpy(&num, buf, sizeof(num));
-    
     // 如果系统是大端序，则进行字节交换
-    if (!IS_LITTLE_ENDIAN) {
+    if (!IS_LITTLE_ENDIAN)
         num = bswap32(num);
-    }
     
     return num;
 }
 
 // 写入32位小端整数
-static inline void write32le(uint8_t *buf, uint32_t num) {
-    if (!IS_LITTLE_ENDIAN) {
+static inline void write32le(uint8_t *buf, uint32_t num) 
+{
+    if (!IS_LITTLE_ENDIAN)
         num = bswap32(num);
-    }
     
     memcpy(buf, &num, sizeof(num));
 }
@@ -189,6 +199,7 @@ static size_t arm64_code(uint32_t now_pos, bool is_encoder,
 
 		if ((instr >> 26) == 0x25) {
 			const uint32_t src = instr;
+
 			instr = 0x94000000;
 
 			pc >>= 2;
@@ -211,6 +222,7 @@ static size_t arm64_code(uint32_t now_pos, bool is_encoder,
 				pc = 0U - pc;
 
 			const uint32_t dest = src + pc;
+
 			instr |= (dest & 3) << 29;
 			instr |= (dest & 0x0003FFFC) << 3;
 			instr |= (0U - (dest & 0x00020000)) & 0x00E00000;
@@ -221,10 +233,11 @@ static size_t arm64_code(uint32_t now_pos, bool is_encoder,
 	return i;
 }
 
-int bcj_code(uint8_t* buf,uint32_t startpos,size_t size,int bcj_type,bool is_encode)
+int bcj_code(uint8_t *buf, uint32_t startpos, size_t size, int bcj_type, bool is_encode)
 {
 	size_t processed_size = 0;
-	lzma_simple_x86 simple;
+	struct lzma_simple_x86 simple;
+
 	switch (bcj_type) {
 	case 1:
 		simple.prev_mask = 0;

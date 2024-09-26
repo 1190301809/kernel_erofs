@@ -1,0 +1,25 @@
+From 3402f5e38c205148a9c92a23f3874f9882c6bf01 Mon Sep 17 00:00:00 2001
+From: MercyHeart <mikukon1@outlook.com>
+Date: Thu, 26 Sep 2024 13:18:18 +0200
+Subject: [PATCH 2/2] arm64 bcj
+
+---
+ zdata.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/zdata.c b/zdata.c
+index 30854d4..f2ded8f 100644
+--- a/zdata.c
++++ b/zdata.c
+@@ -1235,7 +1235,7 @@ static int z_erofs_bcj_decode_page(struct page* page,struct z_erofs_pcluster* pc
+ 			}else if(nowpage == totalpage - 1){
+ 				startpos = pcl->filepos + nowpage*PAGE_SIZE - pcl->pageofs_out;
+ 				if((pcl->pageofs_out + pcl->length)%PAGE_SIZE == 0){
+-					bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
++					bcj_code(buf,startpos,PAGE_SIZE,bcj_flag,false);
+ 				}else{
+ 					bcj_code(buf,startpos,(pcl->pageofs_out + pcl->length)%PAGE_SIZE,bcj_flag,false);
+ 				}
+-- 
+2.45.2.windows.1
+

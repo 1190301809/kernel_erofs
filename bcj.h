@@ -13,10 +13,10 @@ extern "C"
 {
 #endif
 
-int erofs_bcj_filedecode(char* filepath, int bcj_type);
-int erofs_bcj_fileread(int fd, void* buf,size_t nbytes, off_t offset);
-int bcj_code(uint8_t* buf,uint32_t startpos,size_t size,int bcj_type,bool is_encode);
-int page_bcj_decode(struct page* page,size_t startpos);
+int erofs_bcj_filedecode(char *filepath, int bcj_type);
+int erofs_bcj_fileread(int fd, void *buf, size_t nbytes, off_t offset);
+int bcj_code(uint8_t *buf, uint32_t startpos, size_t size, int bcj_type, bool is_encode);
+int page_bcj_decode(struct page *page, size_t startpos);
 
 #ifdef __cplusplus
 }
