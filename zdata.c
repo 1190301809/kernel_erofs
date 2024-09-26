@@ -1220,7 +1220,7 @@ static int z_erofs_parse_in_bvecs(struct z_erofs_decompress_backend *be,
 	return err;
 }
 
-int z_erofs_bcj_decode_page(struct page* page,struct z_erofs_pcluster* pcl)
+int z_erofs_bcj_decode_page(struct page* page,struct z_erofs_pcluster* pcl,int i)
 {
 	if(sbi->bcj_flag){
 		if(pcl->pclustersize != pcl->length){
@@ -1340,7 +1340,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 
 		DBG_BUGON(z_erofs_page_is_invalidated(page));
 
-		z_erofs_bcj_decode_page(page,pcl);
+		z_erofs_bcj_decode_page(page,pcl,i);
 
 		/* recycle all individual short-lived pages */
 		if (z_erofs_put_shortlivedpage(be->pagepool, page))
