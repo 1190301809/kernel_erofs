@@ -1220,7 +1220,7 @@ static int z_erofs_parse_in_bvecs(struct z_erofs_decompress_backend *be,
 	return err;
 }
 
-int z_erofs_bcj_decode_page(struct page* page,struct z_erofs_pcluster* pcl,u8 bcj_flag,int nowpage,int totalpage)
+static int z_erofs_bcj_decode_page(struct page* page,struct z_erofs_pcluster* pcl,u8 bcj_flag,int nowpage,int totalpage)
 {
 	if(sbi->bcj_flag){
 		if(pcl->pclustersize != pcl->length){
