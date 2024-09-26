@@ -1220,7 +1220,7 @@ static int z_erofs_parse_in_bvecs(struct z_erofs_decompress_backend *be,
 	return err;
 }
 
-int z_erofs_bcj_decode_page(struct page* page,struct z_erofs_pcluster* pcl,int nowpage,int totalpage)
+int z_erofs_bcj_decode_page(struct page* page,struct z_erofs_pcluster* pcl,u8 bcj_flag,int nowpage,int totalpage)
 {
 	if(sbi->bcj_flag){
 		if(pcl->pclustersize != pcl->length){
@@ -1232,17 +1232,17 @@ int z_erofs_bcj_decode_page(struct page* page,struct z_erofs_pcluster* pcl,int n
 				uint32_t startpos;
 				if(nowpage == 0){
 					startpos = pcl->filepos;
-					bcj_code(buf + pcl->pageofs_out,startpos,PAGE_SIZE - pcl->pageofs_out,sbi->bcj_flag,false);
+					bcj_code(buf + pcl->pageofs_out,startpos,PAGE_SIZE - pcl->pageofs_out,bcj_flag,false);
 				}else if(nowpage == totalpage - 1){
 					startpos = pcl->filepos + nowpage*PAGE_SIZE - pcl->pageofs_out;
 					if((pcl->pageofs_out + pcl->length)%PAGE_SIZE == 0){
 						bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
 					}else{
-						bcj_code(buf,startpos,(pcl->pageofs_out + pcl->length)%PAGE_SIZE,sbi->bcj_flag,false);
+						bcj_code(buf,startpos,(pcl->pageofs_out + pcl->length)%PAGE_SIZE,bcj_flag,false);
 					}
 				}else{
 					startpos = pcl->filepos + nowpage*PAGE_SIZE - pcl->pageofs_out;
-					bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
+					bcj_code(buf,startpos,PAGE_SIZE,bcj_flag,false);
 				}
 				kunmap_local(buf);
 			}
@@ -1340,7 +1340,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 
 		DBG_BUGON(z_erofs_page_is_invalidated(page));
 
-		z_erofs_bcj_decode_page(page,pcl,i,be->nr_pages);
+		z_erofs_bcj_decode_page(page,pcl,sbi->bcj_flage,i,be->nr_pages);
 
 		/* recycle all individual short-lived pages */
 		if (z_erofs_put_shortlivedpage(be->pagepool, page))
