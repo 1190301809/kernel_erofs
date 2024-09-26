@@ -1340,7 +1340,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_decompress_backend *be,
 
 		DBG_BUGON(z_erofs_page_is_invalidated(page));
 
-		z_erofs_bcj_decode_page(page,pcl,sbi->bcj_flage,i,be->nr_pages);
+		z_erofs_bcj_decode_page(page,pcl,sbi->bcj_flag,i,be->nr_pages);
 
 		/* recycle all individual short-lived pages */
 		if (z_erofs_put_shortlivedpage(be->pagepool, page))
