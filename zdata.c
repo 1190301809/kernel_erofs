@@ -1235,7 +1235,7 @@ static int z_erofs_bcj_decode_page(struct page* page,struct z_erofs_pcluster* pc
 			}else if(nowpage == totalpage - 1){
 				startpos = pcl->filepos + nowpage*PAGE_SIZE - pcl->pageofs_out;
 				if((pcl->pageofs_out + pcl->length)%PAGE_SIZE == 0){
-					bcj_code(buf,startpos,PAGE_SIZE,sbi->bcj_flag,false);
+					bcj_code(buf,startpos,PAGE_SIZE,bcj_flag,false);
 				}else{
 					bcj_code(buf,startpos,(pcl->pageofs_out + pcl->length)%PAGE_SIZE,bcj_flag,false);
 				}
